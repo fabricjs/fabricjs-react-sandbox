@@ -4,7 +4,7 @@ import { CommentsContext } from './Comments';
 import { OpenIDE } from './common';
 import githubIcon from './GitHub-Mark-64px.png';
 import { GitInfo, SANDBOX_DEPLOYED, useDeployCodeSandbox, useGitInfo, useShowComments, useShowModal } from './hooks';
-import diff from '../diff/upstream.diff';
+const diff = ''//import('../diff/upstream.diff');
 
 const PatchIcon = React.memo((props: ImageProps & React.RefAttributes<HTMLImageElement>) =>
   <Image
