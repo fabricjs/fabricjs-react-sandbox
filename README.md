@@ -30,17 +30,6 @@ File changes from `./common` will get built to the app.
 **Make sure you work on files in `./common`.**
 
 
-### Folder Structure
-├── templates
-│   ├── js
-│   └── ts
-├── common
-├── build.js
-├── sandbox.js
-├── ... 
-└── package.json
-
-
 ### `sandbox.js`
 
 The script file `sandbox.js` does 2 things:
