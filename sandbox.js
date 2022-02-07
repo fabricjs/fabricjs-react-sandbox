@@ -7,6 +7,7 @@ const http = require('http');
 const os = require('os');
 const cp = require('child_process');
 const yargs = require('yargs');
+const _ = require('lodash');
 const prompt = require('prompt-sync')({ sigint: true });
 
 const APP_NAME = 'react-sandbox';
@@ -114,9 +115,16 @@ function updateFabricPath(appPath, fabricPath) {
 
 function ensureFabric(context) {
   if (!validateFabricPath(context.fabricPath)) {
-    console.log('> this app relies on fabric to function');
-    context.fabricPath && console.log(`> couldn't find fabric at given path: ${context.fabricPath}`);
-    const validPath = promptFabricPath();
+    let validPath;
+    const presumedFabricLocation = path.resolve(process.cwd(), '..', 'fabric.js');
+    if (validateFabricPath(presumedFabricLocation)) {
+      validPath = presumedFabricLocation;
+      console.log(`> fabric has been found here: ${validPath}`);
+    } else {
+      console.log('> this app relies on fabric to function');
+      context.fabricPath && console.log(`> couldn't find fabric at given path: ${context.fabricPath}`);
+      validPath = promptFabricPath();
+    }
     context.fabricPath = validPath;
     updateFabricPath(context.appPath, validPath);
   }
@@ -128,9 +136,19 @@ function createReactApp(context) {
     const templateDir = process.cwd();
     console.log(chalk.blue(`> creating sandbox using cra-template-${template}`));
     template === 'js' && console.log(chalk.yellow(`> if you want to use typescript re-run with --typescript flag`));
-    cp.execSync(`npx create-react-app ${appPath} --template file:${path.resolve(templateDir, template)}`, {
-      stdio: 'inherit'
-    });
+    //  patch https://github.com/facebook/create-react-app/issues/11756 by downgrading react-scripts
+    const args = [appPath, '--template', `file:${path.resolve(templateDir, template)}`, '--scripts-version', '4.0.3'].join(' ');
+    try {
+      cp.execSync(`yarn create react-app --use-pnp ${args}`, {
+        stdio: 'inherit'
+      });
+    } catch (error) {
+      console.log(chalk.red('\n> failed creating the app with yarn, defaulting to npm'));
+      fs.rmSync(appPath, { recursive: true, force: true });
+      cp.execSync(`npx create-react-app ${args}`, {
+        stdio: 'inherit'
+      });
+    }
   } else {
     console.log(chalk.yellow(`> ${appPath} already exists`));
     process.exit(1);
@@ -142,14 +160,14 @@ async function startReactSandbox(context) {
   copyBuildToApp(context);
   writeDiff(context);
   console.log(chalk.yellow(`\n> watching for changes in fabric ${fabricPath}`));
-  fs.watch(path.resolve(fabricPath, 'src'), { recursive: true }, () => {
+  fs.watch(path.resolve(fabricPath, 'src'), { recursive: true }, _.debounce(() => {
     try {
       copyBuildToApp(context);
       writeDiff(context);
     } catch (error) {
       console.log(chalk.blue('> error listening to/building fabric'));
     }
-  });
+  }, 500, { trailing: true }));
   const port = await createServer(context, 5000);
   const packagePath = path.resolve(appPath, 'package.json');
   const package = JSON.parse(fs.readFileSync(packagePath).toString());
