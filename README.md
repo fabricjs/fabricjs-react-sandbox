@@ -4,6 +4,12 @@ This repository contains `create-react-app` templates: `cra-template-ts` and `cr
 It is a sandbox for developers to work on fabric with ease, a bootstrap fabric-react app ready to use with a single command.
 
 
+For more information, please refer to:
+
+- [Getting Started](https://create-react-app.dev/docs/getting-started) – How to create a new app.
+- [User Guide](https://create-react-app.dev) – How to develop apps bootstrapped with Create React App.
+
+
 ### Create an app with a template
 ```sh
 npm run start <path/to/app> -- [--typescript] [--start] [--fabric <path/to/fabric/local/repo>]
@@ -44,8 +50,3 @@ The script file `sandbox.js` does 2 things:
       - `codesandbox` - in charge of deploying the app to codesandbox
       - `open-ide` - opens the IDE on the machine pointing to `src/App`
 
-
-For more information, please refer to:
-
-- [Getting Started](https://create-react-app.dev/docs/getting-started) – How to create a new app.
-- [User Guide](https://create-react-app.dev) – How to develop apps bootstrapped with Create React App.
