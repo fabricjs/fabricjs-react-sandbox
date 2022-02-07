@@ -21,10 +21,3 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# template build
-/js/template
-/js/template.json
-/ts/template
-/ts/template.json
-/dev-sandbox
