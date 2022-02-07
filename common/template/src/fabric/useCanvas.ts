@@ -12,11 +12,10 @@ const DEV_MODE = process.env.NODE_ENV === 'development';
  * @param {(canvas: fabric.Canvas) => any} [init] callback invoked after canvas has been initialized (runs every time the canvas element ref changes)
  * @param {boolean} [saveState=true] save canvas state between app refresh cycles, has effect only in DEV mode
  */
-export function useCanvas(init?: (canvas: fabric.Canvas) => any, saveState = true) {
+export function useCanvas(init?: (canvas: fabric.Canvas) => any, saveState = true, deps: any[] = []) {
     const elementRef = useRef<HTMLCanvasElement>(null);
     const fc = useRef<fabric.Canvas | null>(null);
     const data = useRef<any>(null);
-    const _init = useRef<string | undefined>(DEV_MODE ? init?.toString() : undefined);
 
     const setRef = useCallback((ref: HTMLCanvasElement | null) => {
         //@ts-ignore
@@ -38,14 +37,9 @@ export function useCanvas(init?: (canvas: fabric.Canvas) => any, saveState = tru
         init && init(canvas);
         // restore state
         if (DEV_MODE && saveState) {
-            // we check if the init function has changed since last render
-            // if it did we don't restore state so not to override the affect of the refreshed function on canvas state
-            const initValue = init?.toString();
-            const initFunctionDidChange = initValue !== _init.current;
-            data.current && !initFunctionDidChange && canvas.loadFromJSON(data.current, () => { });
-            _init.current = initValue;
+            canvas.loadFromJSON(data.current, () => { });
         }
-    }, [init, saveState]);
+    }, [saveState, ...deps]);
     useEffect(() => {
         // disposer
         return () => {
