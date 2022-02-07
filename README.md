@@ -1,6 +1,8 @@
-# cra-template
+# fabricjs-react-sandbox
 
-This is repository contains `cra-template-ts` and `cra-template-js`
+This repository contains `create-react-app` templates: `cra-template-ts` and `cra-template-js`.\
+It is a sandbox for developers to work on fabric with ease, a bootstrap fabric-react app ready to use with a single command.
+
 
 ### Create an app with a template
 ```sh
@@ -26,6 +28,32 @@ npm run dev
 
 File changes from `./common` will get built to the app.
 **Make sure you work on files in `./common`.**
+
+
+### Folder Structure
+├── templates
+│   ├── js
+│   └── ts
+├── common
+├── build.js
+├── sandbox.js
+├── ... 
+└── package.json
+
+
+### `sandbox.js`
+
+The script file `sandbox.js` does 2 things:
+1. Exposes commands for the cli:
+    - build - building the app from the template (optional because the templates are standalone)
+    - start the app - listens to changes in `fabric/src` and emits a build (and a diff file) to the app so it is very easy and comfortable to develop and test live stuff on the web and it is good for version control as well.
+    - deploy the app to codesandbox
+    - start the server for the app (see no.2)
+    - build and start an app to develop the sandbox app
+2. creates a server for the app exposing 3 endpoints:
+     - `git` - fetches git data for version control awareness (I want to integrate this more deeply than just showing the data). I think this is useful for testing stuff across branches, regressions, a specific commit tag etc.
+      - `codesandbox` - in charge of deploying the app to codesandbox
+      - `open-ide` - opens the IDE on the machine pointing to `src/App`
 
 
 For more information, please refer to:
