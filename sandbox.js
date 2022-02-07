@@ -141,6 +141,7 @@ function createReactApp(context) {
     //  patch https://github.com/facebook/create-react-app/issues/11756 by downgrading react-scripts
     const args = [appPath, '--template', `file:${path.resolve(templateDir, template)}`, '--scripts-version', '4.0.3'].join(' ');
     try {
+      //  bug https://github.com/facebook/create-react-app/issues/5647
       cp.execSync(`yarn create react-app --use-pnp ${args}`, {
         stdio: 'inherit'
       });
