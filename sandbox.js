@@ -193,14 +193,15 @@ function createDeployedEnv(context) {
 /**
  * https://codesandbox.io/docs/api/#define-api
  */
-async function createCodeSandbox(context) {
+async function createCodeSandbox(context, json) {
   const { appPath } = context;
   copyBuildToApp(context);
   writeDiff(context);
   const files = {
     '.env': { content: createDeployedEnv(context) },
-    'src/git.json': { content: getGitInfo(context) }
+    'src/git.json': { content: getGitInfo(context) },
   };
+  json && (files['src/data.json'] = { content: json });
   const processFile = (fileName) => {
     const filePath = path.resolve(appPath, fileName);
     const ext = path.extname(fileName).slice(1);
@@ -253,7 +254,18 @@ function createServer(context, port = 5000) {
     switch (req.url) {
       case '/codesandbox':
         try {
-          const uri = await createCodeSandbox(context);
+          const json = await new Promise((resolve, reject) => {
+            let rawData = '';
+            req.on('data', (chunk) => { rawData += chunk; });
+            req.on('end', () => {
+              try {
+                resolve(JSON.parse(rawData));
+              } catch (e) {
+                reject(e);
+              }
+            });
+          })
+          const uri = await createCodeSandbox(context, json);
           res.writeHead(200, {
             'Content-Type': 'application/json'
           });

@@ -133,8 +133,8 @@ const GitActions = React.memo((info?: Partial<GitInfo> | null) => {
   );
 });
 
-function SandboxUI({ children, hidden }: { children: React.ReactNode, hidden?: boolean }) {
-  const [pending, deployCodeSandbox] = useDeployCodeSandbox();
+function SandboxUI({ children, canvas, hidden }: { children: React.ReactNode, canvas: React.RefObject<fabric.Canvas>, hidden?: boolean }) {
+  const [pending, deployCodeSandbox] = useDeployCodeSandbox(canvas);
   const gitInfo = useGitInfo();
   const [showModal, setShowModal] = useShowModal();
   const comments = useShowComments()

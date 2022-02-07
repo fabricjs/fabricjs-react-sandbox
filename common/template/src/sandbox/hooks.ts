@@ -1,19 +1,26 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export const SANDBOX_DEPLOYED = Boolean(process.env.REACT_APP_SANDBOX_DEPLOYED);
 
-export function useDeployCodeSandbox() {
+export function useDeployCodeSandbox(canvasRef: React.RefObject<fabric.Canvas>) {
   const [pending, setPending] = useState(false);
   const deployCodeSandbox = useCallback(async () => {
     setPending(true);
     try {
-      const { uri } = await (await fetch('/codesandbox')).json();
+      const { uri } = await (await fetch('/codesandbox', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(canvasRef.current?.toJSON() || {})
+      })).json();
       window.open(uri, '_blank');
     } catch (error) {
       console.error(error);
     }
     setPending(false);
-  }, []);
+  }, [canvasRef]);
   return [pending, deployCodeSandbox] as [boolean, () => void];
 }
 
