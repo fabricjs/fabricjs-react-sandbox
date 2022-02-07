@@ -30,7 +30,7 @@ File changes from `./common` will get built to the app.
 **Make sure you work on files in `./common`.**
 
 
-### `sandbox.js`
+## Sandbox
 
 The script file `sandbox.js` does 2 things:
 1. Exposes commands for the cli:
