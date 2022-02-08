@@ -17,13 +17,15 @@ npm run start <path/to/app> -- [--typescript] [--start] [--fabric <path/to/fabri
 
 ### Build
 
-The templates are generated from `./common` using the build script `build.js`.
+Generate the templates from `./common` using the build script `build.js`.
 
 ```sh
 npm run build
 ```
 
 ### Dev
+
+#### Working on the templates
 
 1. install dependencies.
 2. start the dev app `dev-sandbox`.
