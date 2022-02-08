@@ -57,8 +57,6 @@ function getGitInfo(context) {
  * writes the diff files to the app for version control
  */
 function writeDiff(context) {
-  //  disabled
-  return;
   const diffFolder = path.resolve(context.appPath, 'src', 'diff');
   const diffPath = path.resolve(diffFolder, 'upstream.diff');
   const stagingDiffPath = path.resolve(diffFolder, 'staging.diff');
@@ -166,7 +164,7 @@ async function startReactSandbox(context) {
   fs.watch(path.resolve(fabricPath, 'src'), { recursive: true }, _.debounce(() => {
     try {
       copyBuildToApp(context);
-      writeDiff(context);
+      //writeDiff(context);
     } catch (error) {
       console.log(chalk.blue('> error listening to/building fabric'));
     }
