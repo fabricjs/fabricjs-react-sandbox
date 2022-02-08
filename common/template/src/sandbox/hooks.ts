@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 export const SANDBOX_DEPLOYED = Boolean(process.env.REACT_APP_SANDBOX_DEPLOYED);
 
-export function useLoadSnapshot() {
-  return useCallback(() => {
+export function useLoadSnapshot(id: string = '../snapshot.json') {
+  return useCallback(async () => {
     if (SANDBOX_DEPLOYED) {
-      const snapshot = require('../snapshot.json');
+      const snapshot = (await import(id)).default.concat();
       window.dispatchEvent(new CustomEvent('load-snapshot', { detail: snapshot }));
     }
   }, []);
