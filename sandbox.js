@@ -201,7 +201,7 @@ async function createCodeSandbox(context, json) {
     '.env': { content: createDeployedEnv(context) },
     'src/git.json': { content: getGitInfo(context) },
   };
-  json && (files['src/data.json'] = { content: json });
+  json && (files['src/snapshot.json'] = { content: json });
   const processFile = (fileName) => {
     const filePath = path.resolve(appPath, fileName);
     const ext = path.extname(fileName).slice(1);
