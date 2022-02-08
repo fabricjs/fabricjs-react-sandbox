@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export const SANDBOX_DEPLOYED = Boolean(process.env.REACT_APP_SANDBOX_DEPLOYED);
 
@@ -14,7 +14,7 @@ export function useLoadSnapshot(id: string = '../snapshot.json') {
 /**
  * captures canvas state when deploying sandbox
  */
-export function useSandboxSnapshot(canvasRef: React.RefObject<fabric.Canvas>) {
+function useSandboxSnapshot(canvasRef: React.RefObject<fabric.Canvas>) {
   useEffect(() => {
     const restore = (e) => {
       const data = e.detail.shift();
@@ -30,6 +30,45 @@ export function useSandboxSnapshot(canvasRef: React.RefObject<fabric.Canvas>) {
       window.removeEventListener('deploy', deploy);
     }
   }, [canvasRef]);
+}
+
+let fired = false;
+function useCanvasEvent(canvasRef: React.RefObject<fabric.Canvas>) {
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const focus = () => {
+      window.dispatchEvent(new CustomEvent('canvas', { detail: canvas }));
+    }
+    canvas.on('mouse:down', focus);
+    if (!fired) {
+      fired = true;
+      setTimeout(focus, 50);
+    }
+    return () => {
+      canvas.off('mouse:down', focus);
+    }
+  }, [canvasRef, fired]);
+}
+
+export function useSandboxHooks(canvasRef: React.RefObject<fabric.Canvas>) {
+  useSandboxSnapshot(canvasRef);
+  useCanvasEvent(canvasRef);
+}
+
+export function useActiveCanvas() {
+  const [state, setState] = useState(false);
+  const ref = useRef<fabric.Canvas>(null);
+  useEffect(() => {
+    const focus = (e) => {
+      ref.current = e.detail;
+      setState(true);
+    }
+    window.addEventListener('canvas', focus);
+    return () => {
+      window.removeEventListener('canvas', focus);
+    }
+  }, [ref]);
+  return [state, ref] as [boolean, React.MutableRefObject<Canvas>];
 }
 
 export function useDeployCodeSandbox() {

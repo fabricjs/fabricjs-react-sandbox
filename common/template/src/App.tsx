@@ -1,7 +1,7 @@
 import React from 'react';
 //  open `./fabric/fabric.ts` to change the import source (local build or published module)
 import { fabric, useCanvas } from './fabric';
-import { Comments, useSandboxSnapshot } from './sandbox';
+import { Comments, useSandboxHooks } from './sandbox';
 
 const App = React.memo(() => {
   const [fc, setRef] = useCanvas(canvas => {
@@ -10,7 +10,7 @@ const App = React.memo(() => {
     canvas.add(text);
     text.center();
   });
-  useSandboxSnapshot(fc);
+  useSandboxHooks(fc);
 
   return (
     <>

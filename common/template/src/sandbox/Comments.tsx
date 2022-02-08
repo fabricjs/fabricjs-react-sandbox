@@ -21,7 +21,7 @@ function Comments({ children }: { children?: React.ReactNode }) {
           </>
         }
       </Offcanvas.Body>
-    </Offcanvas >
+    </Offcanvas>
   );
 }
 

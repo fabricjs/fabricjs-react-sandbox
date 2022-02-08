@@ -1,7 +1,7 @@
 import { fabric } from 'fabric';
 import React, { useCallback } from 'react';
-import { Button, Form } from 'react-bootstrap';
-import { useActiveCanvas } from './hooks';
+import { Dropdown, DropdownButton, Form } from 'react-bootstrap';
+import { SANDBOX_DEPLOYED, useActiveCanvas, useLoadSnapshot } from './hooks';
 
 export const CanvasActions = React.memo(() => {
     const [ready, canvas] = useActiveCanvas();
@@ -59,41 +59,27 @@ export const CanvasActions = React.memo(() => {
         }
         reader.readAsText(file);
     }, [canvas]);
+    const loadSnapshot = useLoadSnapshot();
 
-    return ready ?
-        (
-            <div>
-                <Button
-                    variant='outline-primary'
-                    onClick={toJSON}
-                >
-                    toJSON
-                </Button>
-                <Form.Group controlId="fromJSON" className="mb-3">
-                    <Form.Label className='form-label btn btn-outline-primary'>
-                        from JSON
-                    </Form.Label>
-                    <Form.Control hidden type="file" onChange={fromJSON} accept='application/json' />
-                </Form.Group>
-                <Button
-                    variant='outline-primary'
-                    onClick={toPNG}
-                >
-                    to Image
-                </Button>
-                <Button
-                    variant='outline-primary'
-                    onClick={toSVG}
-                >
-                    toSVG
-                </Button>
-                <Form.Group controlId="fromSVG" className="mb-3">
-                    <Form.Label className='form-label btn btn-outline-primary'>
-                        from SVG
-                    </Form.Label>
-                    <Form.Control hidden type="file" onChange={fromSVG} accept='image/svg+xml' />
-                </Form.Group>
-            </div>
-        ) :
-        null;
+    return (
+        <DropdownButton title="Import/Export" variant='outline-info' disabled={!ready}>
+            {
+                SANDBOX_DEPLOYED &&
+                <Dropdown.Item onClick={loadSnapshot}>from Snapshot</Dropdown.Item>
+            }
+            <Dropdown.Item onClick={toPNG}>to Image</Dropdown.Item>
+            <Dropdown.Divider />
+            <Dropdown.Item onClick={toJSON}>to JSON</Dropdown.Item>
+            <Form.Group controlId="fromJSON">
+                <Dropdown.Item as={Form.Label}>from JSON</Dropdown.Item>
+                <Form.Control hidden type="file" onChange={fromJSON} accept='application/json' />
+            </Form.Group>
+            <Dropdown.Divider />
+            <Dropdown.Item onClick={toSVG}>to SVG</Dropdown.Item>
+            <Form.Group controlId="fromSVG">
+                <Dropdown.Item as={Form.Label}>from SVG</Dropdown.Item>
+                <Form.Control hidden type="file" onChange={fromSVG} accept='image/svg+xml' />
+            </Form.Group>
+        </DropdownButton>
+    );
 })

@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Badge, Button, Col, Container, Image, ImageProps, Modal, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
+import { CanvasActions } from './CanvasActions';
 import { CommentsContext } from './Comments';
 import { OpenIDE } from './common';
 import githubIcon from './GitHub-Mark-64px.png';
@@ -253,13 +254,21 @@ function SandboxUI({ children, hidden }: { children: React.ReactNode, hidden?: b
         <CommentsContext.Provider value={comments}>
           {children}
         </CommentsContext.Provider>
-        <Button
-          onClick={() => setShowComments(1)}
-          variant="outline-success"
-        >
-          Show Comments
-          <Image src=" https://unpkg.com/ionicons@latest/dist/svg/information-circle-outline.svg" width={24} className="mx-1" />
-        </Button>
+        <div className="f1 flex space-between">
+          <div className='f1'></div>
+          <div className='f1'>
+            <Button
+              onClick={() => setShowComments(1)}
+              variant="outline-success"
+            >
+              Show Comments
+              <Image src=" https://unpkg.com/ionicons@latest/dist/svg/information-circle-outline.svg" width={24} className="mx-1" />
+            </Button>
+          </div>
+          <div className='f1'>
+            <CanvasActions />
+          </div>
+        </div>
         <Modal
           show={showModal === 1}
           onHide={hideModal}
