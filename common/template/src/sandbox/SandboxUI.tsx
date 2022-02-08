@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Badge, Button, Col, Container, Image, ImageProps, Modal, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
 import { CommentsContext } from './Comments';
 import { OpenIDE } from './common';
 import githubIcon from './GitHub-Mark-64px.png';
-import { GitInfo, SANDBOX_DEPLOYED, useDeployCodeSandbox, useGitInfo, useShowComments, useShowModal } from './hooks';
+import { GitInfo, SANDBOX_DEPLOYED, useDeployCodeSandbox, useGitInfo, useLoadSnapshot, useShowComments, useShowModal } from './hooks';
 const diff = ''//import('../diff/upstream.diff');
 
 const PatchIcon = React.memo((props: ImageProps & React.RefAttributes<HTMLImageElement>) =>
@@ -145,6 +145,8 @@ function SandboxUI({ children, canvas, hidden }: { children: React.ReactNode, ca
   }, [showComments, setShowModal, setShowComments]);
   const [showGitActions, setShowGitActions] = useState(false);
   const [showPatching, setShowPatching] = useState(false);
+  const loadSnapshot = useLoadSnapshot(canvas);
+  useEffect(loadSnapshot, [loadSnapshot]);
 
   return hidden ?
     <>{children}</> :

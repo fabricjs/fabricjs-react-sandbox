@@ -83,3 +83,12 @@ export function useShowComments() {
   }, [show]);
   return [show, setShow] as [number, React.Dispatch<number>];
 }
+
+export function useLoadSnapshot(canvas: React.RefObject<fabric.Canvas>) {
+  return useCallback(() => {
+    if (SANDBOX_DEPLOYED) {
+      const data = require('../snapshot.json');
+      canvas.current.loadFromJSON(data)
+    }
+  }, []);
+}

@@ -201,7 +201,6 @@ async function createCodeSandbox(context, json) {
     '.env': { content: createDeployedEnv(context) },
     'src/git.json': { content: getGitInfo(context) },
   };
-  json && (files['src/snapshot.json'] = { content: json });
   const processFile = (fileName) => {
     const filePath = path.resolve(appPath, fileName);
     const ext = path.extname(fileName).slice(1);
@@ -220,6 +219,7 @@ async function createCodeSandbox(context, json) {
     }
   }
   FILES.forEach(processFile);
+  json && (files['src/snapshot.json'] = { content: json });
   const isTypescript = fs.existsSync(path.resolve(appPath, 'src', 'App.tsx'));
   try {
     const { data: { sandbox_id } } = await Axios.post("https://codesandbox.io/api/v1/sandboxes/define?json=1", {
