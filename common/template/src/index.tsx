@@ -1,17 +1,16 @@
-import React, { useRef } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import Canvas from './App';
 import reportWebVitals from './reportWebVitals';
 import SandboxUI from './sandbox';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles.css';
 
 function App() {
-  const canvas = useRef<fabric.Canvas>(null) as React.RefObject<fabric.Canvas>;
   return (
-    <SandboxUI canvas={canvas}>
+    <SandboxUI>
       <div className="App-canvas">
-        <Canvas ref={canvas} />
+        <Canvas />
       </div>
     </SandboxUI>
   );

@@ -2,10 +2,42 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 export const SANDBOX_DEPLOYED = Boolean(process.env.REACT_APP_SANDBOX_DEPLOYED);
 
-export function useDeployCodeSandbox(canvasRef: React.RefObject<fabric.Canvas>) {
+export function useLoadSnapshot() {
+  return useCallback(() => {
+    if (SANDBOX_DEPLOYED) {
+      const snapshot = require('../snapshot.json');
+      window.dispatchEvent(new CustomEvent('load-snapshot', { detail: snapshot }));
+    }
+  }, []);
+}
+
+/**
+ * captures canvas state when deploying sandbox
+ */
+export function useSandboxSnapshot(canvasRef: React.RefObject<fabric.Canvas>) {
+  useEffect(() => {
+    const restore = (e) => {
+      const data = e.detail.shift();
+      canvasRef.current.loadFromJSON(data);
+    }
+    const deploy = (e) => {
+      (e as CustomEvent).detail.push(canvasRef.current.toJSON());
+    }
+    window.addEventListener('load-snapshot', restore);
+    window.addEventListener('deploy', deploy);
+    return () => {
+      window.removeEventListener('load-snapshot', restore);
+      window.removeEventListener('deploy', deploy);
+    }
+  }, [canvasRef]);
+}
+
+export function useDeployCodeSandbox() {
   const [pending, setPending] = useState(false);
   const deployCodeSandbox = useCallback(async () => {
     setPending(true);
+    const snapshot = [];
+    window.dispatchEvent(new CustomEvent('deploy', { detail: snapshot }));
     try {
       const { uri } = await (await fetch('/codesandbox', {
         method: 'POST',
@@ -13,14 +45,14 @@ export function useDeployCodeSandbox(canvasRef: React.RefObject<fabric.Canvas>) 
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(canvasRef.current?.toJSON() || {})
+        body: JSON.stringify(snapshot)
       })).json();
       window.open(uri, '_blank');
     } catch (error) {
       console.error(error);
     }
     setPending(false);
-  }, [canvasRef]);
+  }, []);
   return [pending, deployCodeSandbox] as [boolean, () => void];
 }
 
@@ -82,13 +114,4 @@ export function useShowComments() {
     show > -1 && localStorage.setItem(STORAGE_KEY_COMMENTS, 'true');
   }, [show]);
   return [show, setShow] as [number, React.Dispatch<number>];
-}
-
-export function useLoadSnapshot(canvas: React.RefObject<fabric.Canvas>) {
-  return useCallback(() => {
-    if (SANDBOX_DEPLOYED) {
-      const data = require('../snapshot.json');
-      canvas.current.loadFromJSON(data)
-    }
-  }, []);
 }

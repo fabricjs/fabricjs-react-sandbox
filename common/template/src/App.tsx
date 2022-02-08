@@ -1,16 +1,16 @@
-import React, { useImperativeHandle } from 'react';
+import React from 'react';
 //  open `./fabric/fabric.ts` to change the import source (local build or published module)
 import { fabric, useCanvas } from './fabric';
-import { Comments } from './sandbox';
+import { Comments, useSandboxSnapshot } from './sandbox';
 
-const App = React.forwardRef((props, ref) => {
+const App = React.memo(() => {
   const [fc, setRef] = useCanvas(canvas => {
     // do stuff with canvas after initialization
     const text = new fabric.Text('Fabric.js Sandbox');
     canvas.add(text);
     text.center();
   });
-  useImperativeHandle(ref, () => fc.current);
+  useSandboxSnapshot(fc);
 
   return (
     <>
