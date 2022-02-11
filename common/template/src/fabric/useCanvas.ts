@@ -1,7 +1,9 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { fabric } from './fabric';
 
 const DEV_MODE = process.env.NODE_ENV === 'development';
+
+const NOOP = () => { };
 
 /**
  * Create fabric.Canvas ref
@@ -9,37 +11,42 @@ const DEV_MODE = process.env.NODE_ENV === 'development';
  * We use a ref function and not a ref object because fabric.Canvas 
  * needs to be informed of changes made to the canvas element it works with
  * 
- * @param {(canvas: fabric.Canvas) => any} [init] callback invoked after canvas has been initialized (runs every time the canvas element ref changes)
+ * @param {(canvas: fabric.Canvas) => void | (() => void)} [init] callback invoked after canvas has been initialized (runs every time the canvas element ref changes)\
+ * return a disposer if the callback needs cleanup (e.g. unregister events).
  * @param {boolean} [saveState=true] save canvas state between app refresh cycles, has effect only in DEV mode
  */
-export function useCanvas(init?: (canvas: fabric.Canvas) => any, saveState = true, deps: any[] = []) {
+export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void), saveState = true, deps: any[] = []) {
     const elementRef = useRef<HTMLCanvasElement>(null);
     const fc = useRef<fabric.Canvas | null>(null);
+    const disposer = useRef<(() => any) | null | void>(null);
     const data = useRef<any>(null);
+    const dispose = useCallback(() => {
+        typeof disposer.current === 'function' && disposer.current();
+        disposer.current = null;
+        fc.current?.dispose();
+        fc.current = null;
+    }, [disposer, fc]);
 
     const setRef = useCallback((ref: HTMLCanvasElement | null) => {
-        //@ts-ignore
         elementRef.current = ref;
         // save state
         if (DEV_MODE && saveState && fc.current) {
             data.current = fc.current.toJSON();
         }
         // dispose canvas
-        fc.current?.dispose();
-        // set/clear ref
+        dispose();
         if (!ref) {
-            fc.current = null;
             return;
         }
-        const canvas = new fabric.Canvas(ref, { backgroundColor: 'white' });
+        // set ref and invoke callback
+        const canvas = new fabric.Canvas(ref);
         fc.current = canvas;
-        // invoke callback
-        init && init(canvas);
+        disposer.current = init && init(canvas);
         // restore state
         if (DEV_MODE && saveState) {
-            canvas.loadFromJSON(data.current, () => { });
+            canvas.loadFromJSON(data.current, NOOP);
         }
-    }, [saveState, ...deps]);
+    }, [saveState, dispose, ...deps]);
     useEffect(() => {
         // disposer
         return () => {
@@ -48,11 +55,8 @@ export function useCanvas(init?: (canvas: fabric.Canvas) => any, saveState = tru
                 data.current = fc.current.toJSON();
             }
             // we avoid unwanted disposing by doing so only if element ref is unavailable
-            if (!elementRef.current) {
-                fc.current?.dispose();
-                fc.current = null;
-            }
+            !elementRef.current && dispose();
         };
-    }, [saveState]);
+    }, [saveState, dispose]);
     return [fc, setRef] as [typeof fc, typeof setRef];
 }
