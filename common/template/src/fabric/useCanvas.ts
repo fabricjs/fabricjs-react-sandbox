@@ -20,43 +20,31 @@ export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void),
     const fc = useRef<fabric.Canvas | null>(null);
     const disposer = useRef<(() => any) | null | void>(null);
     const data = useRef<any>(null);
-    const dispose = useCallback(() => {
+
+    const dispose = useCallback((blockSaving: boolean = true) => {
+        // save state
+        if (blockSaving && DEV_MODE && saveState && fc.current) {
+            data.current = fc.current.toJSON();
+        }
         typeof disposer.current === 'function' && disposer.current();
         disposer.current = null;
         fc.current?.dispose();
         fc.current = null;
-    }, [disposer, fc]);
+    }, [saveState, disposer, fc]);
 
     const setRef = useCallback((ref: HTMLCanvasElement | null) => {
+        //  probably happens when the init callback changes
+        const blockSaving = !!ref && !!elementRef.current;
+        dispose(blockSaving);
         elementRef.current = ref;
-        // save state
-        if (DEV_MODE && saveState && fc.current) {
-            data.current = fc.current.toJSON();
-        }
-        // dispose canvas
-        dispose();
-        if (!ref) {
-            return;
-        }
+        if (!ref) return;
         // set ref and invoke callback
         const canvas = new fabric.Canvas(ref);
         fc.current = canvas;
         disposer.current = init && init(canvas);
         // restore state
-        if (DEV_MODE && saveState) {
-            canvas.loadFromJSON(data.current, NOOP);
-        }
-    }, [saveState, dispose, ...deps]);
-    useEffect(() => {
-        // disposer
-        return () => {
-            // save state
-            if (DEV_MODE && saveState && fc.current) {
-                data.current = fc.current.toJSON();
-            }
-            // we avoid unwanted disposing by doing so only if element ref is unavailable
-            !elementRef.current && dispose();
-        };
-    }, [saveState, dispose]);
+        DEV_MODE && saveState && canvas.loadFromJSON(data.current, NOOP);
+    }, [fc, saveState, dispose, init, ...deps]);
+
     return [fc, setRef] as [typeof fc, typeof setRef];
 }
