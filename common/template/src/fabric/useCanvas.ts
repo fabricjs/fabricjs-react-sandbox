@@ -14,8 +14,9 @@ const NOOP = () => { };
  * @param {(canvas: fabric.Canvas) => void | (() => void)} [init] callback invoked after canvas has been initialized (runs every time the canvas element ref changes)\
  * return a disposer if the callback needs cleanup (e.g. unregister events).
  * @param {boolean} [saveState=true] save canvas state between app refresh cycles, has effect only in DEV mode
+ * @param {any[]} [deps] deps of `init` callback
  */
-export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void), saveState = true, deps?: any[]) {
+export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void), saveState: boolean = true, deps?: any[]) {
     const elementRef = useRef<HTMLCanvasElement>(null);
     const fc = useRef<fabric.Canvas | null>(null);
     const disposer = useRef<(() => any) | null | void>(null);
