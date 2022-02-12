@@ -15,15 +15,17 @@ const NOOP = () => { };
  * return a disposer if the callback needs cleanup (e.g. unregister events).
  * @param {boolean} [saveState=true] save canvas state between app refresh cycles, has effect only in DEV mode
  */
-export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void), saveState = true, deps: any[] = []) {
+export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void), saveState = true, deps?: any[]) {
     const elementRef = useRef<HTMLCanvasElement>(null);
     const fc = useRef<fabric.Canvas | null>(null);
     const disposer = useRef<(() => any) | null | void>(null);
     const data = useRef<any>(null);
+    const cb = useRef<string>(null);
+    const callback = useCallback(init, deps);
 
-    const dispose = useCallback((blockSaving: boolean = true) => {
+    const dispose = useCallback((blockSaving?: boolean) => {
         // save state
-        if (blockSaving && DEV_MODE && saveState && fc.current) {
+        if (!blockSaving && DEV_MODE && saveState && fc.current) {
             data.current = fc.current.toJSON();
         }
         typeof disposer.current === 'function' && disposer.current();
@@ -33,18 +35,28 @@ export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void),
     }, [saveState, disposer, fc]);
 
     const setRef = useCallback((ref: HTMLCanvasElement | null) => {
-        //  probably happens when the init callback changes
-        const blockSaving = !!ref && !!elementRef.current;
-        dispose(blockSaving);
+        dispose();
         elementRef.current = ref;
         if (!ref) return;
         // set ref and invoke callback
         const canvas = new fabric.Canvas(ref);
         fc.current = canvas;
-        disposer.current = init && init(canvas);
+        disposer.current = callback(canvas);
         // restore state
         DEV_MODE && saveState && canvas.loadFromJSON(data.current, NOOP);
-    }, [fc, saveState, dispose, init, ...deps]);
+    }, [fc, saveState, dispose, callback]);
+
+    //  invalidates canvas once init callback changes
+    useEffect(() => {
+        if (!DEV_MODE) return;
+        const canvas = fc.current;
+        if (cb.current !== callback.toString() && canvas) {
+            typeof disposer.current === 'function' && disposer.current();
+            canvas.clear();
+            disposer.current = callback(canvas);
+        }
+        cb.current = callback.toString();
+    }, [fc, callback, cb]);
 
     return [fc, setRef] as [typeof fc, typeof setRef];
 }
