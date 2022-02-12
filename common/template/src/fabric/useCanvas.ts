@@ -21,7 +21,7 @@ export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void),
     const disposer = useRef<(() => any) | null | void>(null);
     const data = useRef<any>(null);
 
-    const dispose = useCallback((blockSaving: boolean = true) => {
+    const dispose = useCallback((blockSaving: boolean = false) => {
         // save state
         if (blockSaving && DEV_MODE && saveState && fc.current) {
             data.current = fc.current.toJSON();
