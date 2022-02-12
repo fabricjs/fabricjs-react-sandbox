@@ -6,6 +6,7 @@ import { Comments, useSandboxHooks } from './sandbox';
 const App = React.memo(() => {
   const [fc, setRef] = useCanvas(canvas => {
     // do stuff with canvas after initialization
+    canvas.backgroundColor = 'white';
     const text = new fabric.Text('Fabric.js Sandbox');
     canvas.add(text);
     text.center();
