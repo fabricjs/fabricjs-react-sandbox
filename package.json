@@ -28,7 +28,8 @@
     "postinstall": "npm run build",
     "prepublish": "npm run build",
     "start": "node sandbox build",
-    "dev": "node sandbox dev"
+    "dev": "node sandbox dev",
+    "test": "npm run dev"
   },
   "bin": {
     "fabric-sandbox": "sandbox.js"
