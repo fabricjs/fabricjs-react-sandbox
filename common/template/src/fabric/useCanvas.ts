@@ -28,6 +28,7 @@ export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void),
         if (!blockSaving && DEV_MODE && saveState && fc.current) {
             data.current = fc.current.toJSON();
         }
+        //  dispose
         typeof disposer.current === 'function' && disposer.current();
         disposer.current = null;
         fc.current?.dispose();
@@ -56,7 +57,7 @@ export function useCanvas(init?: (canvas: fabric.Canvas) => void | (() => void),
             disposer.current = callback(canvas);
         }
         cb.current = callback.toString();
-    }, [fc, callback, cb]);
+    }, [fc, callback, cb, disposer]);
 
     return [fc, setRef] as [typeof fc, typeof setRef];
 }
