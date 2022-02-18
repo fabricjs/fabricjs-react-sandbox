@@ -27,7 +27,7 @@
     "build": "node build",
     "postinstall": "npm run build",
     "prepublish": "npm run build",
-    "start": "node sandbox build",
+    "start": "npm run dev",
     "dev": "node sandbox dev",
     "test": "npm run dev"
   },
