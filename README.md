@@ -1,3 +1,9 @@
+# Archived
+
+Deprecated by https://github.com/fabricjs/fabric.js/pull/8135
+
+---
+
 # fabricjs-react-sandbox
 
 This repository contains `create-react-app` templates: `cra-template-ts` and `cra-template-js`.\
